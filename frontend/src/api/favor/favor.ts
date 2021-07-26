@@ -13,14 +13,10 @@ interface IFavorites {
   favorites: IFavor[];
 }
 
-// userID
-interface userID {
-  userID: string;
-}
 
 //  获取所有收藏
-export async function _getFavorites(idDto: userID) {
-  return api({ method: 'POST', url: '/favor/show', data: idDto });
+export async function _getFavorites() {
+  return api({ method: 'GET', url: '/favor' });
 }
 
 // 更新收藏

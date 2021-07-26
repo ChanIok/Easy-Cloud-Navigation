@@ -187,34 +187,24 @@ export default {
     },
     // 从服务器获取收藏夹
     getFavoritesFromServer() {
-      let userID = localStorage.getItem("userID");
-      if (typeof userID === "undefined" || userID === null) {
-        console.log("getUserID ERR");
-      } else {
-        _getFavorites({ userID: userID }).then((res) => {
-          this.favoritesData = res.msg;
-        });
-      }
+      _getFavorites().then((res) => {
+        this.favoritesData = res.msg;
+      });
     },
     // 上传收藏夹到服务器
     postFavoritesToServer() {
-      let userID = localStorage.getItem("userID");
-      if (typeof userID === "undefined" || userID === null) {
-        console.log("getUserID ERR");
-      } else {
-        _updateFavorites({
-          userID: userID,
-          favorites: this.favoritesData,
-        }).then((res) => {
-          if (res.code === 0) {
-            this.favoritesData = res.msg.favorites;
-            this.ifShowfavorites = false;
-            console.log("同步成功");
-          } else {
-            console.log("同步失败");
-          }
-        });
-      }
+      _updateFavorites({
+        userId: null,
+        favorites: this.favoritesData,
+      }).then((res) => {
+        if (res.code === 0) {
+          this.favoritesData = res.msg.favorites;
+          this.ifShowfavorites = false;
+          console.log("同步成功");
+        } else {
+          console.log("同步失败");
+        }
+      });
     },
     openURL(address) {
       if (!this.ifCardEdit) {

@@ -103,8 +103,8 @@ export class FavorService {
   }
 
   // 通过用户ID获取收藏夹
-  public async getFavoritesByID(userID: string) {
-    return await this.favorModel.find({ userID: userID }).then((res) => {
+  public async getFavoritesByID(userId: string) {
+    return await this.favorModel.find({ userId: userId }).then((res) => {
       if (res.length === 0) {
         throw (this.response = { code: 10002, msg: '获取用户收藏夹信息失败' });
       }

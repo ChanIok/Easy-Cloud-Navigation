@@ -9,11 +9,6 @@ export interface IFavor {
   icon: string;
 }
 
-// userID
-export interface userID {
-  userID: string;
-}
-
 @Schema()
 export class Favor extends Document {
   @Prop()
