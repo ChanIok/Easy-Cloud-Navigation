@@ -31,9 +31,9 @@
         </el-form-item>
       </el-form>
       <div class="retrieve-wapper">
-        <span class="retrieve-password" @click="changeEvent('alter')"
+        <!-- <span class="retrieve-password" @click="changeEvent('alter')"
           >忘记密码？</span
-        >
+        > -->
       </div>
       <div class="auth-button">
         <el-button type="primary" @click="login('LoginFormData')"

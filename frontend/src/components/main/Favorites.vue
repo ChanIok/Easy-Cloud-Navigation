@@ -32,17 +32,6 @@
               <el-input
                 v-model="newCardData.address"
                 placeholder="请输入网站地址"
-              >
-                <template #prepend>
-                  <el-select
-                    v-model="addressPrefix"
-                    placeholder="http://"
-                    class="prefix-select"
-                  >
-                    <el-option label="http://" value="1"></el-option>
-                    <el-option label="https://" value="2"></el-option>
-                    <el-option label="自定义" value="3"></el-option>
-                  </el-select> </template
               ></el-input>
             </el-form-item>
             <!-- 图标地址 -->
@@ -57,17 +46,7 @@
                 placeholder="请输入图标地址"
                 v-model="newCardData.icon"
                 :disabled="ifAutoIconAddress"
-                ><template #prepend>
-                  <el-select
-                    v-model="iconPrefix"
-                    placeholder="http://"
-                    class="prefix-select"
-                  >
-                    <el-option label="http://" value="1"></el-option>
-                    <el-option label="https://" value="2"></el-option>
-                    <el-option label="自定义" value="3"></el-option>
-                  </el-select>
-                </template>
+              >
               </el-input>
             </el-form-item>
           </el-form>
@@ -75,6 +54,51 @@
             <span class="dialog-footer">
               <el-button @click="ifDialogVisible = false">取 消</el-button>
               <el-button type="primary" @click="addCard">确 定</el-button>
+            </span>
+          </template>
+        </el-dialog>
+
+        <!-- 编辑的详细对话框 -->
+        <el-dialog
+          title="编辑"
+          v-model="ifEditDialogVisible"
+          :width="widthResponsive"
+        >
+          <el-form :model="editCardData">
+            <!-- 名称 -->
+            <el-form-item label="名称">
+              <el-input
+                v-model="editCardData.title"
+                placeholder="请输入网站名称"
+              ></el-input>
+            </el-form-item>
+            <!-- 地址 -->
+            <el-form-item label="地址">
+              <el-input
+                v-model="editCardData.address"
+                placeholder="请输入网站地址"
+              ></el-input>
+            </el-form-item>
+            <!-- 图标地址 -->
+            <el-form-item label="图标地址">
+              <el-switch
+                class="icon-auto-switch"
+                v-model="ifAutoIconAddress"
+                active-text="自动填写"
+              >
+              </el-switch>
+              <el-input
+                placeholder="请输入图标地址"
+                v-model="editCardData.icon"
+                :disabled="ifAutoIconAddress"
+              >
+              </el-input>
+            </el-form-item>
+          </el-form>
+          <template #footer>
+            <span class="dialog-footer">
+              <el-button @click="ifEditDialogVisible = false">取 消</el-button>
+              <el-button type="primary" @click="editCard">确 定</el-button>
             </span>
           </template>
         </el-dialog>
@@ -97,6 +121,8 @@
             class="f-card"
             @click="openURL(item.address)"
           >
+            <!-- 编辑点击区域 -->
+            <div class="edit-click" @click="enterEditDialog(index)"></div>
             <!-- 图标 -->
             <div class="img-wrapper">
               <i class="img-err el-icon-s-promotion"></i>
@@ -109,17 +135,10 @@
             </div>
             <!-- 内容 -->
             <div class="f-card-container-wrapper">
-              <div class="f-card-container" v-if="!ifCardEdit">
+              <div class="f-card-container">
                 {{ item.title }}
               </div>
 
-              <!-- 编辑输入框 -->
-              <el-input
-                class="f-card-edit"
-                v-if="ifCardEdit"
-                v-model="item.title"
-              >
-              </el-input>
               <!-- 删除图标 -->
               <div class="f-card-del" @click="delCard(index)" v-if="ifCardEdit">
                 <i class="el-icon-close"></i>
@@ -134,7 +153,7 @@
 
 <script>
 import { _getFavorites, _updateFavorites } from "../../api/favor/favor";
-
+import { ElMessage } from "element-plus";
 export default {
   name: "Favorites",
   data() {
@@ -142,7 +161,13 @@ export default {
       favoritesData: [],
       ifCardEdit: false,
       ifDialogVisible: false,
+      ifEditDialogVisible: false,
       newCardData: {
+        title: "",
+        address: "",
+        icon: "",
+      },
+      editCardData: {
         title: "",
         address: "",
         icon: "",
@@ -151,8 +176,6 @@ export default {
       ifAutoIconAddress: true,
       errorImage: "this.hidden=true",
       widthResponsive: "70%",
-      addressPrefix: "1",
-      iconPrefix: "1",
     };
   },
   components: {},
@@ -173,15 +196,16 @@ export default {
     // 添加一个收藏
     addCard() {
       this.ifDialogVisible = false;
-      this.newCardData.address = this.repairPrefix(
-        this.addressPrefix,
-        this.newCardData.address
-      );
-      this.newCardData.icon = this.repairPrefix(
-        this.iconPrefix,
-        this.newCardData.icon
-      );
+      this.newCardData.address = this.repairPrefix(this.newCardData.address);
+      this.newCardData.icon = this.repairPrefix(this.newCardData.icon);
       this.favoritesData.push(this.newCardData);
+      localStorage.setItem("favorites", this.favoritesData);
+      this.postFavoritesToServer();
+    },
+    // 修改一个收藏
+    editCard(index) {
+      this.favoritesData[index] = this.editCardData;
+      this.ifEditDialogVisible = false;
       localStorage.setItem("favorites", this.favoritesData);
       this.postFavoritesToServer();
     },
@@ -196,31 +220,44 @@ export default {
       _updateFavorites({
         userId: null,
         favorites: this.favoritesData,
-      }).then((res) => {
-        if (res.code === 0) {
-          this.favoritesData = res.msg.favorites;
-          this.ifShowfavorites = false;
-          console.log("同步成功");
-        } else {
-          console.log("同步失败");
-        }
-      });
+      })
+        .then((res) => {
+          if (res.code === 0) {
+            this.favoritesData = res.msg.favorites;
+            this.ifShowfavorites = false;
+            ElMessage.success({
+              message: "同步成功",
+              type: "success",
+            });
+          } else {
+            throw "err";
+          }
+        })
+        .catch(() => {
+          ElMessage.error({
+            message: "同步失败",
+            type: "error",
+          });
+        });
     },
     openURL(address) {
       if (!this.ifCardEdit) {
         window.open(address);
       }
     },
-    repairPrefix(prefixVal, address) {
+    enterEditDialog(index) {
+      this.ifEditDialogVisible = true;
+      this.editCardData = this.favoritesData[index];
+    },
+
+    repairPrefix(address) {
       if (
         address !== null &&
         typeof address !== undefined &&
         address.trim() !== ""
       ) {
-        if (prefixVal === "1") {
+        if (!/\/\//.test(address)) {
           address = "http://" + address;
-        } else if (prefixVal === "2") {
-          address = "https://" + address;
         }
       }
       return address;
@@ -288,6 +325,13 @@ export default {
     min-width: 128px;
     box-sizing: border-box;
     margin: 5px;
+    position: relative;
+    .edit-click {
+      position: absolute;
+      z-index: 3;
+      width: calc(100% - 32px);
+      height: 50px;
+    }
   }
   .img-wrapper {
     position: relative;

@@ -15,6 +15,16 @@ export class FavorService {
     @InjectModel('FAVOR_MODEL') private readonly favorModel: Model<Favor>,
   ) {}
 
+  // 通过用户ID获取收藏夹
+  public async getFavoritesByID(userId: string) {
+    return await this.favorModel.find({ userId: userId }).then((res) => {
+      if (res.length === 0) {
+        throw (this.response = { code: 10002, msg: '获取用户收藏夹信息失败' });
+      }
+      return (this.response = { code: 0, msg: res[0]['favorites'] });
+    });
+  }
+
   // 更新收藏夹
   public async updateFavorites(favor: Favor, userId: string) {
     // 添加图标
@@ -56,8 +66,8 @@ export class FavorService {
   }
 
   // 通过地址获取图标
-  private async getIconByaddress(address: string) {
-    return await this.getHTML(address).then((data: string) => {
+  private getIconByaddress(address: string) {
+    return this.getHTML(address).then((data: string) => {
       let refIcon: string;
 
       const addressIcons = data.match(/<link rel=".*icon".*?>/);
@@ -100,15 +110,5 @@ export class FavorService {
       .catch(() => {
         return '';
       });
-  }
-
-  // 通过用户ID获取收藏夹
-  public async getFavoritesByID(userId: string) {
-    return await this.favorModel.find({ userId: userId }).then((res) => {
-      if (res.length === 0) {
-        throw (this.response = { code: 10002, msg: '获取用户收藏夹信息失败' });
-      }
-      return (this.response = { code: 0, msg: res[0]['favorites'] });
-    });
   }
 }

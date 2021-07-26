@@ -178,7 +178,7 @@ export default {
               ElMessage.error("请求注册失败", err);
             });
         } else {
-          console.log("error submit!!");
+
         }
       });
     },

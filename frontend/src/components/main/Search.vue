@@ -11,6 +11,15 @@
         <el-menu-item index="2">谷歌</el-menu-item>
         <el-menu-item index="3">哔哩哔哩</el-menu-item>
       </el-menu>
+      <div id="user">
+        <div id="user-icon" @click="clickUser">
+          <i class="el-icon-user-solid"></i>
+        </div>
+        <div id="log-out" v-show="isExitWrapper" @click="logout">
+          退出登录
+          <i class="el-icon-right"></i>
+        </div>
+      </div>
     </div>
     <div id="search-input-wrapper">
       <el-input
@@ -19,14 +28,11 @@
         @keyup.enter="doSearch"
         class="input-with-select"
       >
-   
-
         <template #append>
           <el-button icon="el-icon-search" @click="doSearch"></el-button>
         </template>
       </el-input>
     </div>
-    
   </div>
 </template>
 
@@ -39,10 +45,14 @@ export default {
       searchIndex: "1",
       inputContent: "",
       select: "",
+      isExitWrapper: false,
     };
   },
   components: {},
   methods: {
+    clickUser() {
+      this.isExitWrapper = true;
+    },
     doSearch() {
       let req = encodeURI(this.inputContent);
       if (this.searchIndex === "1") {
@@ -56,14 +66,69 @@ export default {
     handleSelect(index) {
       this.searchIndex = index;
     },
+    clickUser() {
+      this.isExitWrapper = true;
+    },
+    logout() {
+      localStorage.clear();
+      this.isExitWrapper = false;
+      this.$router.push({
+        path: "/",
+      });
+    },
+    checkClick(e) {
+      if (!document.getElementById("user").contains(e.target))
+        this.isExitWrapper = false;
+    },
   },
-  mounted() {},
+  mounted() {
+    document.addEventListener("click", this.checkClick);
+  },
+  unmounted() {
+    document.removeEventListener("click", this.checkClick);
+  },
 };
 </script>
 
 <style  lang="scss" scoped>
 #search {
+  position: relative;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
- 
+  #user {
+    position: absolute;
+    right: 0;
+    z-index: 3;
+    top: 0;
+    height: 60px;
+    #user-icon {
+      margin-right: 10px;
+      line-height: 60px;
+      font-size: 24px;
+      cursor: pointer;
+      &:hover {
+        color: #409eff;
+        transition-duration: 0.2s;
+        transition-timing-function: ease-in-out;
+      }
+    }
+    #log-out {
+      position: absolute;
+      width: 100px;
+      height: 50px;
+      text-align: center;
+      line-height: 50px;
+      right: 35px;
+      font-size: 15px;
+      top: 5px;
+      background-color: #fff;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+      &:hover {
+        color: #409eff;
+        transition-duration: 0.2s;
+        transition-timing-function: ease-in-out;
+      }
+    }
+  }
 }
 </style>
