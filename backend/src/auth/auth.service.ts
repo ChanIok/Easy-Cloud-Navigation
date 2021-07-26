@@ -31,10 +31,10 @@ export class AuthService {
       .then((dbUser: User) => {
         const passEncript = encript(password, dbUser.salt);
         if (passEncript === dbUser.password) {
-          return (this.response = { code: 0, msg: { userID: dbUser._id } });
+          return (this.response = { code: 0, msg: '登录成功' });
         } else {
           this.response = { code: 4, msg: '用户密码错误' };
-          console.log(password, dbUser.salt);
+
           throw this.response;
         }
       })
@@ -46,15 +46,14 @@ export class AuthService {
   // 用户登录方法
   public async login(user: User) {
     return await this.validateUser(user)
-      .then((res: IResponse) => {
+      .then(async (res: IResponse) => {
         if (res.code !== 0) {
           this.response = res;
           throw this.response;
         }
-        const userID = res.msg.userID;
         this.response = {
           code: 0,
-          msg: { token: this.createToken(user), userID },
+          msg: { token: await this.createToken(user) },
         };
         return this.response;
       })
@@ -64,8 +63,16 @@ export class AuthService {
   }
 
   // 创建Token
-  private createToken(user: User) {
-    return this.jwtService.sign(user);
+  private async createToken(user: User) {
+    return await this.findOneByUserName(user.username)
+      .then((res: User[]) => {
+        const payload = { userId: res[0]._id };
+        return this.jwtService.sign(payload);
+      })
+      .catch((err) => {
+        console.log(err);
+        return 'ERROR';
+      });
   }
 
   // 注册方法
@@ -127,7 +134,7 @@ export class AuthService {
     });
   }
 
-  // 通过号码查找用户
+  // 通过用户名查找用户
   public async findOneByUserName(username: string) {
     return await this.userModel.find({ username });
   }

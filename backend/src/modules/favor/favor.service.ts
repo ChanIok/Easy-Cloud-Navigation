@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import axios from 'axios';
 import { Model } from 'mongoose';
-import { Favor, IFavor } from 'src/interfaces/favor.interface';
+import { Favor } from 'src/interfaces/favor.interface';
 import { IResponse } from 'src/interfaces/response.interface';
 
 const logger = new Logger('favor.service.ts');
@@ -16,7 +16,7 @@ export class FavorService {
   ) {}
 
   // 更新收藏夹
-  public async updateFavorites(favor: Favor) {
+  public async updateFavorites(favor: Favor, userId: string) {
     // 添加图标
     for (const item of favor.favorites) {
       if (
@@ -36,7 +36,7 @@ export class FavorService {
 
     try {
       const updated = await this.favorModel.findOneAndUpdate(
-        { userID: favor.userID },
+        { userId: userId },
         { $set: { favorites: favor.favorites } },
         { new: true, upsert: true },
       );
@@ -50,7 +50,7 @@ export class FavorService {
         code: 10001,
         msg: '更新失败',
       };
-      logger.log(`${favor.userID}:${error}`);
+      logger.log(`${userId}:${error}`);
       throw this.response;
     }
   }

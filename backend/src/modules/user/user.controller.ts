@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  Request,
+  Req,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -15,7 +23,7 @@ export class UserController {
   @Role('admin')
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('jwt')
-  hello() {
-    return this.userService.hello();
+  hello(@Request() requset: any) {
+    return this.userService.hello(requset.user);
   }
 }

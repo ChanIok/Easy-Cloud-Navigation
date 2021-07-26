@@ -17,11 +17,11 @@ export class UserService {
   ) {
     this.redis = this.redisService.getClient('management');
   }
-  public async hello() {
-    // return await this.redis.set('management', 'hello,world');
+
+  public async hello(req: any) {
     return {
       code: 0,
-      msg: 'hello!',
+      msg: req,
     };
   }
 }

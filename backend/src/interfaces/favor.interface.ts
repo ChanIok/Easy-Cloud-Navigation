@@ -21,7 +21,7 @@ export class Favor extends Document {
     description: '收藏夹拥有者',
     example: '60c86d94dff6c667684cab25',
   })
-  readonly userID: string;
+  readonly userId: string;
 
   @Prop()
   @ApiProperty({
