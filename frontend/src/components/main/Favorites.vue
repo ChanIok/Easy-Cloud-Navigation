@@ -246,8 +246,10 @@ export default {
       }
     },
     enterEditDialog(index) {
-      this.ifEditDialogVisible = true;
-      this.editCardData = this.favoritesData[index];
+      if (this.ifCardEdit) {
+        this.ifEditDialogVisible = true;
+        this.editCardData = this.favoritesData[index];
+      }
     },
 
     repairPrefix(address) {

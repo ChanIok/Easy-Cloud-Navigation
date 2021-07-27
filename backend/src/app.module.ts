@@ -2,9 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DbModule } from './db/db.module';
-import { UserService } from './modules/user/user.service';
-import { UserController } from './modules/user/user.controller';
-import { UserModule } from './modules/user/user.module';
+
 import { Log4jsModule } from '@nestx-log4js/core';
 import { AuthModule } from './auth/auth.module';
 import { RedisModule, RedisModuleOptions } from 'nestjs-redis';
@@ -19,13 +17,12 @@ const options: RedisModuleOptions = {
 @Module({
   imports: [
     DbModule,
-    UserModule,
     Log4jsModule.forRoot(),
     AuthModule,
     RedisModule.register(options),
     FavorModule,
   ],
-  controllers: [AppController, UserController],
-  providers: [AppService, UserService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
