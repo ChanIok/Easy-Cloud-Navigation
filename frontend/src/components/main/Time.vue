@@ -27,7 +27,7 @@ export default {
     },
     initClock() {
       this.year = new Date().getFullYear();
-      this.month = new Date().getMonth().toString().padStart(2, "0");
+      this.month = (new Date().getMonth()+1).toString().padStart(2, "0");
       this.date = new Date().getDate().toString().padStart(2, "0");
       this.hours = new Date().getHours().toString().padStart(2, "0");
       this.minutes = new Date().getMinutes().toString().padStart(2, "0");
